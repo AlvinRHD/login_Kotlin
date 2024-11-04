@@ -32,14 +32,14 @@
 
         <!--Esta vendria siendo la pantalla del login-->
         <activity
-            android:name=".MainActivity"
+            android:name=".loginactivity"
             android:exported="false">
 
         </activity>
 
         <!--Y aqui la pantalla donde llevara osea la bienvenida pore ejemplo-->
         <activity
-            android:name=".pagenextlogin"
+            android:name=".MainActivity"
             android:exported="false">
 
         </activity>

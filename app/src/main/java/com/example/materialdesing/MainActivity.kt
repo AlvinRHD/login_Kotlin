@@ -1,74 +1,77 @@
 package com.example.materialdesing
 
+
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var userInput: TextInputEditText
-    private lateinit var passwordInput: TextInputEditText
-    private lateinit var loginButton: Button
-
-
+    private lateinit var drawerLayout: DrawerLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-        //Aqui van a ir las vistas a las variables
-        userInput = findViewById(R.id.user)
-        passwordInput = findViewById(R.id.password)
-        loginButton = findViewById(R.id.login)
 
-        //Aqui voy a configurar el evento de clic del boton de inicio de sesion
-        loginButton.setOnClickListener {
-            valirdarCredenciales()
-        }
 
+        drawerLayout = findViewById(R.id.drawer_layout)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+
+        val toggle = ActionBarDrawerToggle(this, drawerLayout,toolbar,R.string.app_nav, R.string.close_nav)
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment()).commit()
+            navigationView.setCheckedItem(R.id.nav_home)
+        }
     }
-    //Aqui es la funcion para validar los camops y autenticar
-    private fun valirdarCredenciales() {
-        val username = userInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId){
+            R.id.nav_home->supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, HomeFragment()).commit()
 
-        //validacion para que los campos no esten vacios
-        if (username.isEmpty()){
-            userInput.error = "El usuario es requeridod"
-            return
-        }
-        if (password.isEmpty()){
-            passwordInput.error = "La contraseña es requerida"
-            return
+
+            R.id.nav_ajustes->supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, SettingsFragment()).commit()
+
+
+
+            R.id.nav_compartir->supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, ShareFragment()).commit()
+
+
+            R.id.nav_info->supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, AboutFragment()).commit()
+
+            R.id.nav_salir-> {Toast.makeText(this, "Saliendo...", Toast.LENGTH_SHORT).show()
+                val intent = Intent (this, loginactivity::class.java)
+                startActivity(intent)
+            finish()}
+
         }
 
-        //Valida la longitud minima de la contraseña
-        if (password.length < 6){
-            passwordInput.error = "La contraseña debe tener al menos 6 caracteres"
-            return
-        }
-
-        //Aqui va la autenticacion
-        if (username == "AdminAlvin" && password == "gato321"){
-            //aqui va si las credenciales son correctas, abre la pantalla de bienvenida
-            val intent = Intent(this, pagenextlogin::class.java)//aqui falta pasarle la pantalla a la que ira
-            startActivity(intent)
-            finish() //y que cierre la pantalla de inicio de sesion
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START)
         }else{
-            //si las credenciales son incorrectas
-            Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+            super.onBackPressed()
         }
     }
 }
